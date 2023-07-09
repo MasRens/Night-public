@@ -2,6 +2,7 @@ var handler = async (m, {
 	conn,
 	text,
 	args,
+	usedPrefix,
 	command
 }) => {
 	if (command == 'stopmenfes') {
@@ -14,14 +15,12 @@ var handler = async (m, {
 		return
 	}
 	if (!text) return m.reply('Berbicara kepada orang yang kamu suka secara anonim\n\nCara Penggunaan : .menfes nomor(diawali kode negara)|pesan\n\nExample : .menfes 62895xxxxx|I Love You')
-	if (args[0] == 'accept') {
+	if (args[0] == 'Yes') {
 		const find = Object.values(db.data.menfes).find(t => t.to == m.sender)
 		db.data.menfes[find.id].chatting = true
-		await m.reply('Anda menerima ajakan chatting dari dia\n\nGood Luck!')
-		return await conn.sendButton(find.id, 'Dia telah menerima ajakan chatting denganmu\n\nGood Luck Bro & Sis:', `Ingin stop chat? Silahkan klik tombol dibawah`, [
-			['Stop Chat', '.stopmenfes']
-		], null)
-	} else if (args[0] == 'decline') {
+		await m.reply(`Anda menerima ajakan chatting dari dia\n\nGood Luck!\nUntuk Mengakhiri Obrolan ketik #stopmenfes`)
+		return await conn.reply(find.id, `Dia telah menerima ajakan chatting denganmu\n\nGood Luck Bro & Sis\nIngin stop chat? Silahkan klik tombol dibawah`, null)
+	} else if (args[0] == 'No') {
 		const find = Object.values(db.data.menfes).find(t => t.to == m.sender)
 		if (!find) return m.reply('Silahkan ketik #stopmenfes')
 		if (find.chatting == true) {
@@ -45,11 +44,8 @@ var handler = async (m, {
 		to: to,
 		chatting: false
 	}
-	const teks = `Halo ${await conn.getName(to)} 👋🏻\n Kamu mendapat pesan dari seseorang\n\n"${text.split('|')[1]}"`
-	await conn.sendButton(to, teks, `Ingin chatting bersama dia? Y/N`, [
-		['Y', '.menfes accept'],
-		['N', '.menfes decline']
-	], null)
+	const teks = `Halo ${await conn.getName(to)} 👋🏻\n Kamu mendapat pesan dari seseorang\n\n"${text.split('|')[1]}"\n\nIngin chatting bersama dia? \n*Silakan Ketik ${usedPrefix}menfes Yes/${usedPrefix}menfes No*\n\nY = Yes\nN = Menolak`
+	await conn.sendTextWithMentions(to, teks, null)
 	await m.reply('Pesan sudah dikirim ke target\n\nSilahkan tunggu jawaban dari dia:')
 }
 handler.help = ['menfes', 'stopmenfes']
